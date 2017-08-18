@@ -1,7 +1,7 @@
 # Templates
 Generic letter, will be customized and personalized
 
-Hello <username>
+Hello $username
 
 stdlib has 2 packages:  
 
@@ -10,9 +10,11 @@ stdlib has 2 packages:
 
 go run main.go > index.html
 
-### text/template
+## text/template
 
 .gohtml - custom file extension, not mandatory, can be changed to any extension. I'll be using html, just because code editors can use appropriate tools
+
+### Parsing files 
 
 ```tmp := template.ParseFiles(...files)``` - creates a container holding templates
 
@@ -21,3 +23,9 @@ go run main.go > index.html
 tmp.ParseGlob
 
 Must() does error checking
+
+Parse -> Execute
+
+### Sending data
+
+```{{.}}``` - the current piece of data
