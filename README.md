@@ -29,3 +29,5 @@ Parse -> Execute
 ### Sending data
 
 ```{{.}}``` - the current piece of data
+
+When passing struct, make sure the data is exported(starts with upper case)
