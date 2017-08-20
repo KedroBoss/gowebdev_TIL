@@ -33,3 +33,7 @@ Parse -> Execute
 When passing struct, make sure the data is exported(starts with upper case)
 
 Passing function to templates is good to modify data. Functions must be passed before the template is parsed.
+
+Time formating depends on the number that are typed in.
+
+Pipelining - passing value from one function to another
