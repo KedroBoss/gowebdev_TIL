@@ -37,3 +37,13 @@ Passing function to templates is good to modify data. Functions must be passed b
 Time formating depends on the number that are typed in.
 
 Pipelining - passing value from one function to another
+
+To pass template:
+```
+{{define "templateName"}}
+{{end}}
+
+{{template "templateName"}}
+```
+
+Methods(functions with recievers) can be used in a template
