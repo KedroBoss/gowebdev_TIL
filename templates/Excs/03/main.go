@@ -22,15 +22,16 @@ type Dinner struct {
 }
 
 type meal struct {
-	Name string
+	Name  string
+	Price float64
 }
 
 var tpl *template.Template
 var meals = []meal{
-	meal{"Meal1"},
-	meal{"Meal2"},
-	meal{"Meal3"},
-	meal{"Meal4"},
+	meal{"Meal1", 69.99},
+	meal{"Meal2", 99.69},
+	meal{"Meal3", 13.37},
+	meal{"Meal4", 05.99},
 }
 
 func init() {
