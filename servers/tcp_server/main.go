@@ -29,7 +29,11 @@ func handle(conn net.Conn) {
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
 		ln := scanner.Text()
+		// print to server's console
 		fmt.Println(ln)
+
+		// print to client's console
+		fmt.Fprintln(conn, ln)
 	}
 	defer conn.Close()
 }
