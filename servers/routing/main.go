@@ -17,7 +17,10 @@ func main() {
 	http.HandleFunc("/hand/", hand)
 
 	// /handle only be handled
-	http.HandleFunc("/handle", handle)
+	// converting func type into HandlerFunc which implemenets Handler
+	// Handle takes Handler
+	// (!) CAUTION: HandleFunc != HandlerFunc (!)
+	http.Handle("/handle", http.HandlerFunc(handle))
 
 	http.HandleFunc("/func/in/func", func(w http.ResponseWriter, req *http.Request) {
 		io.WriteString(w, "This is totaly legit way of doing it.")
