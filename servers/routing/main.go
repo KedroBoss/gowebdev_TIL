@@ -5,27 +5,20 @@ import (
 	"net/http"
 )
 
-type handHandler int
-
-func (h handHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func hand(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Handy hand")
 }
 
-type handleHandler int
-
-func (h handleHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func handle(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Handy handle is handled")
 }
 func main() {
-	var hand handHandler
-	var handle handleHandler
-
-	mux := http.NewServeMux()
-
 	// /hand/moreURL will be handled by the Handle
-	mux.Handle("/hand/", hand)
+	http.HandleFunc("/hand/", hand)
 
 	// /handle only be handled
-	mux.Handle("/handle", handle)
-	http.ListenAndServe(":8080", mux)
+	http.HandleFunc("/handle", handle)
+
+	// nil = user DefaultServeMux
+	http.ListenAndServe(":8080", nil)
 }
