@@ -19,6 +19,10 @@ func main() {
 	// /handle only be handled
 	http.HandleFunc("/handle", handle)
 
-	// nil = user DefaultServeMux
+	http.HandleFunc("/func/in/func", func(w http.ResponseWriter, req *http.Request) {
+		io.WriteString(w, "This is totaly legit way of doing it.")
+	})
+
+	// nil = use DefaultServeMux
 	http.ListenAndServe(":8080", nil)
 }
