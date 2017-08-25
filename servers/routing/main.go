@@ -5,18 +5,23 @@ import (
 	"net/http"
 )
 
-type handler int
+type handHandler int
 
-func (h handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	switch req.URL.Path {
-	case "/handle":
-		io.WriteString(w, "This is a handle. Handle of what? Stuff.")
-	case "/hand":
-		io.WriteString(w, "Hand of a person.")
-	}
+func (h handHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	io.WriteString(w, "Handy hand")
 }
 
+type handleHandler int
+
+func (h handleHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	io.WriteString(w, "Handy handle is handled")
+}
 func main() {
-	var h handler
-	http.ListenAndServe(":8080", h)
+	var hand handHandler
+	var handle handleHandler
+
+	mux := http.NewServeMux()
+	mux.Handle("/hand/", hand)
+	mux.Handle("/handle", handle)
+	http.ListenAndServe(":8080", mux)
 }
