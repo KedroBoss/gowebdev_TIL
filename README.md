@@ -51,3 +51,7 @@ Methods(functions with receivers) can be used in a template
 ## State
 
 State - persistent awareness of who is communicating with whom 
+
+## Enctype
+
+When a form allows to upload a file: use enctype = "multipart/form-data"
