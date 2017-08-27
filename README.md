@@ -46,4 +46,8 @@ To pass template:
 {{template "templateName"}}
 ```
 
-Methods(functions with recievers) can be used in a template
+Methods(functions with receivers) can be used in a template
+
+## State
+
+State - persistent awareness of who is communicating with whom 
