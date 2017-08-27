@@ -5,6 +5,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func foo(w http.ResponseWriter, req *http.Request) {
@@ -29,6 +31,17 @@ func foo(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		s = string(bs)
+
+		dst, err := os.Create(filepath.Join(".", h.Filename) + "-copy")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		defer dst.Close()
+
+		_, err = dst.Write(bs)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 
 	}
 	w.Header().Set("Content-Type", "text/html; charset=urf-8")
