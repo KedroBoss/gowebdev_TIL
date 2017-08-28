@@ -55,3 +55,4 @@ State - persistent awareness of who is communicating with whom
 ## Enctype
 
 When a form allows to upload a file: use enctype = "multipart/form-data"
+
