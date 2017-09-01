@@ -56,3 +56,11 @@ State - persistent awareness of who is communicating with whom
 
 When a form allows to upload a file: use enctype = "multipart/form-data"
 
+## Sessions
+
+Server assigns uuid to a client, which then used to have a state and persist data
+
+Assign uuid to cookie -> take the id from the cookie
+
+### UUID
+
