@@ -9,9 +9,11 @@
 <body>
     {{if .FirstName}}
         <p>Username {{.Username}}</p>
+        <p>Password {{.Password}}</p>
         <p>First {{.FirstName}}</p>
         <p>Last {{.LastName}}</p>
     {{else}}
+        <h1><a href="/login">Login</a></h1>
         <h1><a href="/signup">Signup</a></h1>
     {{end}}
     
