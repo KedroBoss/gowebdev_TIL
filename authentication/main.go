@@ -152,3 +152,21 @@ func admin(w http.ResponseWriter, req *http.Request) {
 	}
 	tpl.ExecuteTemplate(w, "admin.html", u)
 }
+
+/*
+
+COOL EXAMPLE HOW TO SETUP ADMIN-ONLY PAGES
+
+http.HandleFunc("/logout", authorized(logout))
+func authorized(h http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		// code before
+		if !alreadyLoggedIn(w, r) {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		h.ServeHTTP(w, r)
+		// code after
+	})
+}
+*/
