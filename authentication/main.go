@@ -21,7 +21,7 @@ func init() {
 	// test user
 	// generate with a given string
 	bs, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.MinCost)
-	dbUsers["kedro"] = user{"kedro", bs, "dm", "bk"}
+	dbUsers["kedro"] = user{"kedro", bs, "dm", "bk", "admin"}
 }
 
 func main() {
@@ -29,6 +29,7 @@ func main() {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/logout", logout)
+	http.HandleFunc("/admin", admin)
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.ListenAndServe(":8080", nil)
 }
@@ -86,6 +87,7 @@ func signup(w http.ResponseWriter, req *http.Request) {
 		p := req.FormValue("password")
 		f := req.FormValue("first_name")
 		l := req.FormValue("last_name")
+		r := req.FormValue("role")
 
 		if _, ok := dbUsers[un]; ok {
 			http.Error(w, "Username already exist", http.StatusForbidden)
@@ -100,7 +102,7 @@ func signup(w http.ResponseWriter, req *http.Request) {
 		http.SetCookie(w, c)
 		dbSessions[c.Value] = un
 
-		u := user{un, []byte(p), f, l}
+		u := user{un, []byte(p), f, l, r}
 		dbUsers[un] = u
 
 		http.Redirect(w, req, "/", http.StatusSeeOther)
@@ -126,4 +128,17 @@ func logout(w http.ResponseWriter, req *http.Request) {
 
 	http.SetCookie(w, c)
 	http.Redirect(w, req, "/", http.StatusSeeOther)
+}
+
+func admin(w http.ResponseWriter, req *http.Request) {
+	u := getUser(w, req)
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
+	if u.Role != "admin" {
+		http.Redirect(w, req, "/", http.StatusForbidden)
+		return
+	}
+	tpl.ExecuteTemplate(w, "admin.html", u)
 }

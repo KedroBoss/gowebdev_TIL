@@ -13,6 +13,10 @@
         <p>Password {{.Password}}</p>
         <p>First {{.FirstName}}</p>
         <p>Last {{.LastName}}</p>
+        <p>Role {{.Role}}</p>
+        {{if eq .Role "admin"}}
+            <h3><a href="/admin">Admin Page</a></h3>
+        {{end}}
     {{else}}
         <h1><a href="/login">Login</a></h1>
         <h1><a href="/signup">Signup</a></h1>

@@ -5,4 +5,5 @@ type user struct {
 	Password  []byte
 	FirstName string
 	LastName  string
+	Role      string
 }
