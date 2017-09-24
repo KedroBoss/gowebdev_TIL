@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
@@ -27,12 +28,15 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/signup", signup)
+	http.HandleFunc("/logout", logout)
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.ListenAndServe(":8080", nil)
 }
 
 func index(w http.ResponseWriter, req *http.Request) {
 	u := getUser(w, req)
+	fmt.Println("Sessions:", dbSessions)
+	fmt.Println("Users:", dbUsers)
 	tpl.ExecuteTemplate(w, "index.html", u)
 }
 
@@ -103,4 +107,23 @@ func signup(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	tpl.ExecuteTemplate(w, "signup.html", nil)
+}
+
+func logout(w http.ResponseWriter, req *http.Request) {
+	if !alreadyLoggedIn(req) {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
+	}
+	c, _ := req.Cookie("session")
+
+	delete(dbSessions, c.Value)
+
+	c = &http.Cookie{
+		Name:   "session",
+		Value:  "",
+		MaxAge: -1,
+	}
+
+	http.SetCookie(w, c)
+	http.Redirect(w, req, "/", http.StatusSeeOther)
 }
