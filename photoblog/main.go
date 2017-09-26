@@ -8,7 +8,10 @@ import (
 	"net/http"
 )
 
+// username:uuid
 var dbSessions = map[string]session{}
+
+// username:user{}
 var dbUsers = map[string]user{}
 
 var tpl *template.Template
@@ -106,7 +109,7 @@ func logout(w http.ResponseWriter, req *http.Request) {
 	}
 	c, err := req.Cookie("session")
 	if err != nil {
-		// TODO
+		http.Error(w, "Error with cookies", http.StatusInternalServerError)
 		return
 	}
 	delete(dbSessions, c.Value)
