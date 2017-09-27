@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -10,12 +9,6 @@ import (
 	"log"
 	"net/http"
 )
-
-// username:uuid
-var dbSessions = map[string]session{}
-
-// username:user{}
-// var dbUsers = map[string]user{}
 
 var tpl *template.Template
 
@@ -27,7 +20,6 @@ func init() {
 
 }
 func main() {
-
 	if db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/users?charset=utf8"); err != nil {
 		log.Fatal(err)
 		return
@@ -49,7 +41,6 @@ func main() {
 
 func index(w http.ResponseWriter, req *http.Request) {
 	u := getUser(w, req)
-	fmt.Println(dbSessions)
 	tpl.ExecuteTemplate(w, "index.html", u)
 }
 
@@ -156,7 +147,7 @@ func login(w http.ResponseWriter, req *http.Request) {
 			Value: id.String(),
 		}
 		http.SetCookie(w, c)
-		dbSessions[c.Value] = session{n}
+		createSession(c.Value, user{n})
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
@@ -173,7 +164,7 @@ func logout(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Error with cookies", http.StatusInternalServerError)
 		return
 	}
-	delete(dbSessions, c.Value)
+	deleteSession(c.Value)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:   "session",
