@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/satori/go.uuid"
+	"log"
 	"net/http"
 )
 
@@ -13,7 +14,15 @@ func alreadyLoggedIn(req *http.Request) bool {
 		return false
 	}
 	u, ok := dbSessions[c.Value]
-	_, ok = dbUsers[u.un]
+	if ok {
+		if _, err = db.Query(
+			"SELECT username FROM users WHERE username=?",
+			u.un,
+		); err != nil {
+			log.Fatal(err)
+			return false
+		}
+	}
 	return ok
 
 }
@@ -33,11 +42,21 @@ func getUser(w http.ResponseWriter, req *http.Request) user {
 	}
 	http.SetCookie(w, c)
 
-	var u user
+	var un string
 
 	s, ok := dbSessions[c.Value]
 	if ok {
-		u = dbUsers[s.un]
+		db.QueryRow(
+			"SELECT username FROM users WHERE username=?",
+			s.un,
+		).Scan(&un)
 	}
-	return u
+	return user{un}
+}
+
+func pingDB(w http.ResponseWriter) {
+	if err := db.Ping(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

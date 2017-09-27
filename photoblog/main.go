@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -12,14 +15,30 @@ import (
 var dbSessions = map[string]session{}
 
 // username:user{}
-var dbUsers = map[string]user{}
+// var dbUsers = map[string]user{}
 
 var tpl *template.Template
 
+var db *sql.DB
+var err error
+
 func init() {
 	tpl = template.Must(template.ParseGlob("templates/*.html"))
+
 }
 func main() {
+
+	if db, err = sql.Open("mysql", "root:root@tcp(localhost:3306)/users?charset=utf8"); err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	defer db.Close()
+
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/", index)
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/login", login)
@@ -31,7 +50,6 @@ func main() {
 func index(w http.ResponseWriter, req *http.Request) {
 	u := getUser(w, req)
 	fmt.Println(dbSessions)
-	fmt.Println(dbUsers)
 	tpl.ExecuteTemplate(w, "index.html", u)
 }
 
@@ -41,13 +59,14 @@ func signup(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if req.Method == http.MethodPost {
+		pingDB(w)
 		n := req.FormValue("username")
 		p := req.FormValue("password")
 
-		if _, ok := dbUsers[n]; ok {
-			http.Error(w, "Username is already taken", http.StatusForbidden)
-			return
-		}
+		// if _, ok := dbUsers[n]; ok {
+		// 	http.Error(w, "Username is already taken", http.StatusForbidden)
+		// 	return
+		// }
 
 		id := uuid.NewV4()
 		c := &http.Cookie{
@@ -61,10 +80,31 @@ func signup(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, "/", http.StatusInternalServerError)
 			return
 		}
-		u := user{n, bp}
 
-		dbUsers[n] = u
-
+		// try inserting user into database
+		// !IMPORTANT
+		if _, err := db.Exec(
+			"INSERT INTO users (username, password) VALUES (?, ?)",
+			n,
+			bp,
+		); err != nil {
+			// if there are any errors
+			// convert error into MySQL error
+			if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+				if mysqlErr.Number == 1062 {
+					// if the error is 1062: duplicate entry
+					// show error
+					http.Error(w, "Such user exists", http.StatusForbidden)
+					return
+				}
+				// if not this error
+				// fatal error
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Fatal(err)
+				log.Fatal(mysqlErr)
+				return
+			}
+		}
 		http.Redirect(w, req, "/login", http.StatusSeeOther)
 		return
 	}
@@ -76,18 +116,39 @@ func login(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 	}
 	if req.Method == http.MethodPost {
+		pingDB(w)
+
 		n := req.FormValue("username")
 		p := req.FormValue("password")
 
-		u, ok := dbUsers[n]
-		if !ok {
-			http.Error(w, "No such user", http.StatusForbidden)
+		var pass []byte
+
+		// insert password into pass
+		// if no user - error
+		// if other error - fatal
+		// if user exist: if password didn't match - error
+		err := db.QueryRow(
+			"SELECT password FROM users WHERE username=?",
+			n,
+		).Scan(&pass)
+		switch {
+		case err == sql.ErrNoRows:
+			http.Error(w, "No Such User", http.StatusForbidden)
 			return
-		}
-		if bcrypt.CompareHashAndPassword(u.Password, []byte(p)) != nil {
-			http.Error(w, "Password didn't match", http.StatusForbidden)
+		case err != nil:
+			log.Fatal(err)
 			return
+		default:
+			if bcrypt.CompareHashAndPassword(pass, []byte(p)) != nil {
+				http.Error(w, "Password didn't match", http.StatusForbidden)
+				return
+			}
 		}
+
+		// if !ok {
+		// 	http.Error(w, "No such user", http.StatusForbidden)
+		// 	return
+		// }
 
 		id := uuid.NewV4()
 		c := &http.Cookie{
