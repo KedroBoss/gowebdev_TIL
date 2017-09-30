@@ -112,6 +112,7 @@ func signup(w http.ResponseWriter, req *http.Request) {
 func login(w http.ResponseWriter, req *http.Request) {
 	if alreadyLoggedIn(req) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
 	}
 	if req.Method == http.MethodPost {
 		pingDB(w)
@@ -219,6 +220,7 @@ func images(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		fmt.Println(fs)
 		log.Fatal(err)
+		return
 	}
 	for _, f := range fs {
 		images = append(images, f.Name())
