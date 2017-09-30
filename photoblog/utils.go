@@ -114,3 +114,13 @@ func pingDB(w http.ResponseWriter) {
 		return
 	}
 }
+
+func authorized(h http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if !alreadyLoggedIn(req) {
+			http.Redirect(w, req, "/login", http.StatusSeeOther)
+			return
+		}
+		h.ServeHTTP(w, req)
+	})
+}

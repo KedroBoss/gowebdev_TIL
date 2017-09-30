@@ -2,10 +2,12 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -35,6 +37,8 @@ func main() {
 	http.HandleFunc("/signup", signup)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/logout", logout)
+	http.HandleFunc("/images", images)
+	http.Handle("/images/", http.StripPrefix("/images", http.FileServer(http.Dir("./assets/images"))))
 	http.Handle("/favicon.ico", http.NotFoundHandler())
 	http.ListenAndServe(":8080", nil)
 }
@@ -174,4 +178,18 @@ func logout(w http.ResponseWriter, req *http.Request) {
 
 	http.Redirect(w, req, "/", http.StatusSeeOther)
 
+}
+
+func images(w http.ResponseWriter, req *http.Request) {
+	var images []string
+	fs, err := ioutil.ReadDir("./assets/images")
+	if err != nil {
+		fmt.Println(fs)
+		log.Fatal(err)
+	}
+	for _, f := range fs {
+		images = append(images, f.Name())
+	}
+
+	tpl.ExecuteTemplate(w, "images.html", images)
 }
