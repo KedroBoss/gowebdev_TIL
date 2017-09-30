@@ -10,6 +10,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path"
+	"time"
 )
 
 var tpl *template.Template
@@ -181,7 +184,37 @@ func logout(w http.ResponseWriter, req *http.Request) {
 }
 
 func images(w http.ResponseWriter, req *http.Request) {
+	if req.Method == http.MethodPost {
+		// read file from form
+		file, header, err := req.FormFile("uploadfile")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
+			return
+		}
+
+		// convert file into byte slice
+		bs, err := ioutil.ReadAll(file)
+		defer file.Close()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		// create a new file on the server under
+		// the path: assets/images
+		t := path.Join("assets", "images", time.Now().String()[:25]+header.Filename)
+		err = ioutil.WriteFile(t, bs, os.ModePerm)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+	}
+
+	// slice of images to use as a context
 	var images []string
+
+	// read all images
 	fs, err := ioutil.ReadDir("./assets/images")
 	if err != nil {
 		fmt.Println(fs)
