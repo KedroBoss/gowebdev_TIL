@@ -64,3 +64,11 @@ Assign uuid to cookie -> take the id from the cookie
 
 ### UUID
 
+
+
+### Tools
+
+* HMAC - encoder. Provided a secret key, generate a hash. If the input is the same-out is the same.
+* BASE64 Encoding - if needs to store in cookie something unusuall(like double quotes), can encode it and store it that way, then decode.
+* Web Storage: local storage; session storage; - can use cookies, local storage and session storage to store data on a clients machine.
+* Context - can store some data in a request. Usually better to pass some "per request variables" like session id.
