@@ -18,7 +18,7 @@ func main() {
 	mongodDialInfo := &mgo.DialInfo{
 		Addrs:    []string{"localhost"},
 		Timeout:  60 * time.Second,
-		Database: "temp",
+		Database: "lexch",
 		Username: "boss",
 		Password: "bossthebest",
 	}
@@ -33,7 +33,7 @@ func main() {
 	// Eventual, Monotonic, Strong
 	session.SetMode(mgo.Monotonic, true)
 
-	c := session.DB("temp").C("categories")
+	c := session.DB("lexch").C("categories")
 
 	doc := Category{
 		bson.NewObjectId(),
